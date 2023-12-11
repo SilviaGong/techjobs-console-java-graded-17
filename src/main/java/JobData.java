@@ -5,19 +5,20 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LaunchCode
  */
 public class JobData {
 
+    // Path to the data file
     private static final String DATA_FILE = "src/main/resources/job_data.csv";
+
+    // Flag to track whether data is loaded or not
     private static boolean isDataLoaded = false;
 
+    // ArrayList to store all job data in the form of HashMaps
     private static ArrayList<HashMap<String, String>> allJobs;
 
     /**
@@ -32,8 +33,10 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
+        // ArrayList to store unique values of the specified field
         ArrayList<String> values = new ArrayList<>();
 
+        // Iterate through each row in the loaded data
         for (HashMap<String, String> row : allJobs) {
             String aValue = row.get(field);
 
@@ -50,18 +53,19 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
-        return allJobs;
+        // Create a copy of allJobs using the ArrayList constructor
+        return new ArrayList<>(allJobs);
     }
 
     /**
      * Returns results of search the jobs data by key/value, using
      * inclusion of the search term.
-     *
+     * <p>
      * For example, searching for employer "Enterprise" will include results
      * with "Enterprise Holdings, Inc".
      *
-     * @param column   Column that should be searched.
-     * @param value Value of teh field to search for
+     * @param column Column that should be searched.
+     * @param value  Value of teh field to search for
      * @return List of all jobs matching the criteria
      */
     public static ArrayList<HashMap<String, String>> findByColumnAndValue(String column, String value) {
@@ -74,12 +78,15 @@ public class JobData {
         for (HashMap<String, String> row : allJobs) {
 
             String aValue = row.get(column);
+            String aValueToLowerCase = aValue.toLowerCase();
 
-            if (aValue.contains(value)) {
+            if (aValueToLowerCase.contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
-
+        if (jobs.isEmpty()) {
+            System.out.println("No Results");
+        }
         return jobs;
     }
 
@@ -87,7 +94,7 @@ public class JobData {
      * Search all columns for the given term
      *
      * @param value The search term to look for
-     * @return      List of all jobs with at least one field containing the value
+     * @return List of all jobs with at least one field containing the value
      */
     public static ArrayList<HashMap<String, String>> findByValue(String value) {
 
@@ -95,7 +102,23 @@ public class JobData {
         loadData();
 
         // TODO - implement this method
-        return null;
+
+        String searchValueLowercase = value.toLowerCase();
+
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+        for (HashMap<String, String> row : allJobs) {
+            for (String aValue : row.values()) {
+                String aValueLowercase = aValue.toLowerCase();
+                if (aValueLowercase.contains(searchValueLowercase)) {
+                    jobs.add(row);
+                }
+            }
+        }
+        if (jobs.size() == 0) {
+            System.out.println("No Results");
+        }
+        return jobs;
+
     }
 
     /**
